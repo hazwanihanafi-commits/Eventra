@@ -1,0 +1,229 @@
+.eventra-admin {
+  min-height: 100vh;
+  padding: 32px;
+  background: #f6f5fa;
+  color: #1e1730;
+}
+
+.eventra-admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.eventra-kicker {
+  color: #53257f;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.eventra-admin h1 {
+  margin: 6px 0;
+  font-size: 32px;
+}
+
+.eventra-admin p {
+  margin: 0;
+  color: #6b6674;
+}
+
+.eventra-primary-btn,
+.eventra-secondary-btn,
+.eventra-refresh-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.eventra-primary-btn {
+  color: #fff;
+  background: linear-gradient(135deg, #53257f, #7436d4);
+}
+
+.eventra-primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.eventra-secondary-btn,
+.eventra-refresh-btn {
+  background: #eeeaf4;
+  color: #53257f;
+}
+
+.eventra-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.eventra-stat-card,
+.eventra-form-card,
+.eventra-section {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(50, 25, 80, 0.08);
+}
+
+.eventra-stat-card {
+  padding: 22px;
+}
+
+.eventra-stat-card span {
+  display: block;
+  color: #6b6674;
+  margin-bottom: 8px;
+}
+
+.eventra-stat-card strong {
+  font-size: 32px;
+  color: #53257f;
+}
+
+.eventra-form-card,
+.eventra-section {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.eventra-form-heading {
+  margin-bottom: 20px;
+}
+
+.eventra-form-heading h2,
+.eventra-section-title h2 {
+  margin: 0 0 6px;
+}
+
+.eventra-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.eventra-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-weight: 700;
+}
+
+.eventra-form-grid label.full {
+  grid-column: 1 / -1;
+}
+
+.eventra-form-grid input {
+  border: 1px solid #ddd7e7;
+  border-radius: 10px;
+  padding: 13px 14px;
+  font-size: 15px;
+  outline: none;
+}
+
+.eventra-form-grid input:focus {
+  border-color: #7436d4;
+}
+
+.eventra-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.eventra-alert {
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+}
+
+.eventra-alert.success {
+  background: #e9f8ef;
+  color: #1d7540;
+}
+
+.eventra-alert.error {
+  background: #fdecec;
+  color: #9b2c2c;
+}
+
+.eventra-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.eventra-table-wrap {
+  overflow-x: auto;
+}
+
+.eventra-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.eventra-table th,
+.eventra-table td {
+  padding: 14px 12px;
+  text-align: left;
+  border-bottom: 1px solid #eeeaf2;
+}
+
+.eventra-table th {
+  color: #53257f;
+  background: #f6f1fb;
+}
+
+.eventra-status,
+.eventra-linked,
+.eventra-unlinked {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.eventra-status,
+.eventra-linked {
+  background: #e9f8ef;
+  color: #217a42;
+}
+
+.eventra-unlinked {
+  background: #fff4df;
+  color: #a36600;
+}
+
+.eventra-empty {
+  padding: 35px;
+  text-align: center;
+  color: #77717f;
+}
+
+@media (max-width: 800px) {
+  .eventra-admin {
+    padding: 20px;
+  }
+
+  .eventra-admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .eventra-stat-grid,
+  .eventra-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .eventra-form-grid label.full {
+    grid-column: auto;
+  }
+}
