@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 
@@ -7,6 +9,9 @@ const PORT = process.env.PORT || 10000;
 
 const APPS_SCRIPT_URL =
   process.env.APPS_SCRIPT_URL;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 /* =========================
@@ -36,7 +41,7 @@ app.get("/api/health", (req, res) => {
 
 
 /* =========================
-   GET → APPS SCRIPT
+   GET API PROXY
    ========================= */
 
 app.get("/api/:action", async (req, res) => {
@@ -58,6 +63,8 @@ app.get("/api/:action", async (req, res) => {
     const url =
       `${APPS_SCRIPT_URL}?${params.toString()}`;
 
+    console.log("GET → Apps Script:", action);
+
     const response = await fetch(url);
 
     const text = await response.text();
@@ -74,7 +81,9 @@ app.get("/api/:action", async (req, res) => {
       });
     }
 
-    return res.status(response.ok ? 200 : response.status).json(result);
+    return res
+      .status(response.ok ? 200 : response.status)
+      .json(result);
 
   } catch (error) {
     console.error("GET proxy error:", error);
@@ -88,7 +97,7 @@ app.get("/api/:action", async (req, res) => {
 
 
 /* =========================
-   POST → APPS SCRIPT
+   POST API PROXY
    ========================= */
 
 app.post("/api/:action", async (req, res) => {
@@ -107,16 +116,19 @@ app.post("/api/:action", async (req, res) => {
       ...(req.body || {}),
     };
 
-    const response = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
+    console.log("POST → Apps Script:", action);
 
-      headers: {
-        "Content-Type":
-          "text/plain;charset=utf-8",
-      },
-
-      body: JSON.stringify(payload),
-    });
+    const response = await fetch(
+      APPS_SCRIPT_URL,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "text/plain;charset=utf-8",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
 
     const text = await response.text();
 
@@ -132,7 +144,9 @@ app.post("/api/:action", async (req, res) => {
       });
     }
 
-    return res.status(response.ok ? 200 : response.status).json(result);
+    return res
+      .status(response.ok ? 200 : response.status)
+      .json(result);
 
   } catch (error) {
     console.error("POST proxy error:", error);
@@ -146,11 +160,41 @@ app.post("/api/:action", async (req, res) => {
 
 
 /* =========================
-   START
+   SERVE REACT FRONTEND
    ========================= */
 
-app.listen(PORT, () => {
-  console.log(
-    `Eventra API running on port ${PORT}`
+const distPath =
+  path.join(__dirname, "dist");
+
+app.use(
+  express.static(distPath)
+);
+
+
+/* =========================
+   REACT ROUTER FALLBACK
+   ========================= */
+
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(
+      distPath,
+      "index.html"
+    )
   );
 });
+
+
+/* =========================
+   START SERVER
+   ========================= */
+
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+    console.log(
+      `Eventra server running on port ${PORT}`
+    );
+  }
+);
