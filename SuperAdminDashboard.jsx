@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./SuperAdminDashboard.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://script.google.com/macros/s/AKfycbwA6KrYSpGe4JakvrJP_avfLZ0o87SoL87XBk7ZSdY4H4rfoSXic1RUlor9tGhDrE-M1w/exec";
 
 function getToken() {
   return (
