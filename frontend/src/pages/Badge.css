@@ -1,0 +1,116 @@
+@page {
+  size: 90mm 130mm;
+  margin: 0;
+}
+
+/* =========================================
+   NORMAL SCREEN
+========================================= */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #ececec;
+}
+
+.badge {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* =========================================
+   PRINT
+========================================= */
+
+@media print {
+
+  html,
+  body {
+    width: 90mm !important;
+    height: 130mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide everything */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show badge */
+  .badge,
+  .badge * {
+    visibility: visible;
+  }
+
+  /* =======================================
+     BADGE
+  ======================================= */
+
+  .badge {
+    position: absolute !important;
+
+    left: 0 !important;
+    top: 0 !important;
+
+    width: 90mm !important;
+    height: 130mm !important;
+
+    min-width: 90mm !important;
+    max-width: 90mm !important;
+
+    min-height: 130mm !important;
+    max-height: 130mm !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    overflow: hidden !important;
+
+    box-shadow: none !important;
+
+    border-radius: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    background: #ffffff !important;
+
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* =======================================
+     FORCE PURPLE HEADER TO PRINT
+  ======================================= */
+
+  .badge > div:first-child {
+    background: #4B0082 !important;
+
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* =======================================
+     FORCE ALL COLOURS
+  ======================================= */
+
+  .badge *,
+  .badge div,
+  .badge h1,
+  .badge h2,
+  .badge img {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
