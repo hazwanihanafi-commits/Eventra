@@ -1,36 +1,188 @@
 import { APP_CONFIG, getStoredSession } from "../config";
 
-function buildUrl(action, extra = {}) {
+/*
+ * Eventra API
+ *
+ * Browser → Render API → Google Apps Script
+ *
+ * Do NOT call Google Apps Script directly from the browser.
+ */
+
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  "/api";
+
+
+function getToken() {
   const session = getStoredSession();
-  const eventId = session?.event?.eventId || APP_CONFIG.defaultEventId;
-  const params = new URLSearchParams({ action, eventId, token: session?.token || "", ...extra });
-  return `${APP_CONFIG.apiUrl}?${params.toString()}`;
+
+  return (
+    session?.token ||
+    localStorage.getItem("eventra_token") ||
+    ""
+  );
 }
 
-async function fetchAPI(url, options = {}) {
+
+function getEventId() {
+  const session = getStoredSession();
+
+  return (
+    session?.event?.eventId ||
+    session?.eventId ||
+    APP_CONFIG.defaultEventId ||
+    ""
+  );
+}
+
+
+/* =========================
+   CENTRAL API REQUEST
+   ========================= */
+
+async function fetchAPI(action, payload = {}) {
   try {
-    const session = getStoredSession();
-    const headers = { ...(options.headers || {}) };
-    if (session?.token) headers.Authorization = `Bearer ${session.token}`;
-    const response = await fetch(url, { ...options, headers });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
+    const token = getToken();
+    const eventId = getEventId();
+
+    const response = await fetch(
+      `${API_BASE}/${action}`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          action,
+          eventId,
+          token,
+          ...payload,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+    }
+
+    const result =
+      await response.json();
+
+    if (!result.success) {
+      throw new Error(
+        result.error ||
+        result.message ||
+        "Eventra request failed."
+      );
+    }
+
+    return result;
+
   } catch (error) {
-    console.error("API Error:", error);
-    return { success: false, message: error.message };
+    console.error(
+      `Eventra API Error [${action}]:`,
+      error
+    );
+
+    return {
+      success: false,
+      message:
+        error.message ||
+        "Unable to connect to Eventra.",
+    };
   }
 }
 
-export function getSummary() { return fetchAPI(buildUrl("stats")); }
-export function getParticipants() { return fetchAPI(buildUrl("list", { t: Date.now() })); }
-export function getParticipant(id) {
-  const value = String(id ?? "").trim();
-  const session = getStoredSession();
-  const eventId = session?.event?.eventId || APP_CONFIG.defaultEventId;
-  const params = new URLSearchParams({ id: value, eventId });
-  if (APP_CONFIG.authMode !== "legacy") params.set("action", "participant");
-  return fetchAPI(`${APP_CONFIG.apiUrl}?${params.toString()}`);
+
+/* =========================
+   AUTH
+   ========================= */
+
+export function login(email, password) {
+  return fetchAPI("login", {
+    email: String(email || "")
+      .trim()
+      .toLowerCase(),
+
+    password,
+  });
 }
-export function checkIn(id) { return fetchAPI(buildUrl("checkin", { id: String(id ?? "").trim() })); }
-export function sendBadgeEmail(id) { return fetchAPI(buildUrl("sendBadgeEmail", { id })); }
-export function sendAllCertificateEmails() { return fetchAPI(buildUrl("sendAllCertificateEmails")); }
+
+
+/* =========================
+   DASHBOARD
+   ========================= */
+
+export function getSummary() {
+  return fetchAPI("stats");
+}
+
+
+/* =========================
+   PARTICIPANTS
+   ========================= */
+
+export function getParticipants() {
+  return fetchAPI("participants");
+}
+
+
+export function getParticipant(id) {
+  return fetchAPI("participant", {
+    id: String(id ?? "").trim(),
+  });
+}
+
+
+/* =========================
+   ATTENDANCE
+   ========================= */
+
+export function checkIn(id) {
+  return fetchAPI("checkin", {
+    id: String(id ?? "").trim(),
+  });
+}
+
+
+/* =========================
+   BADGE
+   ========================= */
+
+export function sendBadgeEmail(id) {
+  return fetchAPI("sendBadgeEmail", {
+    id: String(id ?? "").trim(),
+  });
+}
+
+
+/* =========================
+   CERTIFICATE
+   ========================= */
+
+export function sendAllCertificateEmails() {
+  return fetchAPI(
+    "sendAllCertificateEmails"
+  );
+}
+
+
+/* =========================
+   EVENTRA ADMIN
+   ========================= */
+
+export function getAdminDashboard() {
+  return fetchAPI("dashboardStats");
+}
+
+
+export function createEvent(data) {
+  return fetchAPI(
+    "createEventWithOrganiser",
+    data
+  );
+}
