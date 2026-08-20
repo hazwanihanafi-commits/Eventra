@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 
 /* =========================
    MIDDLEWARE
-   ========================= */
+========================= */
 
 app.use(
   cors({
@@ -28,8 +28,8 @@ app.use(express.json());
 
 
 /* =========================
-   HEALTH CHECK
-   ========================= */
+   HEALTH
+========================= */
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -41,11 +41,12 @@ app.get("/api/health", (req, res) => {
 
 
 /* =========================
-   GET API PROXY
-   ========================= */
+   GET → GOOGLE APPS SCRIPT
+========================= */
 
 app.get("/api/:action", async (req, res) => {
   try {
+
     if (!APPS_SCRIPT_URL) {
       return res.status(500).json({
         success: false,
@@ -57,36 +58,53 @@ app.get("/api/:action", async (req, res) => {
 
     const params = new URLSearchParams({
       action,
-      ...(req.query || {}),
+      ...req.query,
     });
 
     const url =
       `${APPS_SCRIPT_URL}?${params.toString()}`;
 
-    console.log("GET → Apps Script:", action);
+    console.log(
+      "GET Apps Script:",
+      action
+    );
 
     const response = await fetch(url);
 
     const text = await response.text();
 
+    console.log(
+      "Apps Script response:",
+      text.substring(0, 500)
+    );
+
+    if (!text) {
+      return res.status(502).json({
+        success: false,
+        message: "Apps Script returned an empty response.",
+      });
+    }
+
     let result;
 
     try {
       result = JSON.parse(text);
-    } catch {
+    } catch (error) {
       return res.status(502).json({
         success: false,
-        message: "Invalid response from Apps Script.",
-        raw: text,
+        message: "Apps Script returned invalid JSON.",
+        raw: text.substring(0, 500),
       });
     }
 
-    return res
-      .status(response.ok ? 200 : response.status)
-      .json(result);
+    return res.json(result);
 
   } catch (error) {
-    console.error("GET proxy error:", error);
+
+    console.error(
+      "GET proxy error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -97,11 +115,12 @@ app.get("/api/:action", async (req, res) => {
 
 
 /* =========================
-   POST API PROXY
-   ========================= */
+   POST → GOOGLE APPS SCRIPT
+========================= */
 
 app.post("/api/:action", async (req, res) => {
   try {
+
     if (!APPS_SCRIPT_URL) {
       return res.status(500).json({
         success: false,
@@ -113,43 +132,63 @@ app.post("/api/:action", async (req, res) => {
 
     const payload = {
       action,
-      ...(req.body || {}),
+      ...req.body,
     };
 
-    console.log("POST → Apps Script:", action);
+    console.log(
+      "POST Apps Script:",
+      action
+    );
 
     const response = await fetch(
       APPS_SCRIPT_URL,
       {
         method: "POST",
+
         headers: {
           "Content-Type":
             "text/plain;charset=utf-8",
         },
+
         body: JSON.stringify(payload),
       }
     );
 
-    const text = await response.text();
+    const text =
+      await response.text();
+
+    console.log(
+      "Apps Script response:",
+      text.substring(0, 500)
+    );
+
+    if (!text) {
+      return res.status(502).json({
+        success: false,
+        message: "Apps Script returned an empty response.",
+      });
+    }
 
     let result;
 
     try {
       result = JSON.parse(text);
-    } catch {
+    } catch (error) {
       return res.status(502).json({
         success: false,
-        message: "Invalid response from Apps Script.",
-        raw: text,
+        message: "Apps Script returned invalid JSON.",
+        raw: text.substring(0, 500),
       });
     }
 
-    return res
-      .status(response.ok ? 200 : response.status)
-      .json(result);
+    return res.json(result);
 
   } catch (error) {
-    console.error("POST proxy error:", error);
+
+    console.error(
+      "POST proxy error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -160,8 +199,8 @@ app.post("/api/:action", async (req, res) => {
 
 
 /* =========================
-   SERVE REACT FRONTEND
-   ========================= */
+   REACT FRONTEND
+========================= */
 
 const distPath =
   path.join(__dirname, "dist");
@@ -172,29 +211,33 @@ app.use(
 
 
 /* =========================
-   REACT ROUTER FALLBACK
-   ========================= */
+   REACT ROUTER
+========================= */
 
-app.get("*", (req, res) => {
+app.get("/{*splat}", (req, res) => {
+
   res.sendFile(
     path.join(
       distPath,
       "index.html"
     )
   );
+
 });
 
 
 /* =========================
-   START SERVER
-   ========================= */
+   START
+========================= */
 
 app.listen(
   PORT,
   "0.0.0.0",
   () => {
+
     console.log(
-      `Eventra server running on port ${PORT}`
+      `Eventra running on port ${PORT}`
     );
+
   }
 );
